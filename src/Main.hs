@@ -15,23 +15,6 @@ maxWordLength :: Int
 maxWordLength = 9
 
 
-maybeAll :: (a -> Bool)
-  -> Maybe a
-  -> Bool
-maybeAll = all
-
-
-eitherAll :: (a -> Bool)
-  -> Either b a
-  -> Bool
-eitherAll = all
-
-
-badAll :: (a -> Bool)
-  -> (b -> a)
-  -> Bool
-badAll = all
-
 
 -- WORDS LIST
 newtype WordList = WordList [String] deriving (Eq, Show)
@@ -87,11 +70,11 @@ renderPuzzleChar = undefined
 
 
 fillInCharacter :: Puzzle -> Char -> Puzzle
-fillInCharacter (Puzzle word filledInSoFar s) c = Puzzle word newFilledInSoFar (c : s)
-  where zipper guessed wordChar guessChar =
-    if wordChar == guessed
-      then Just wordChar
-    else guessChar newFilledInSoFar = zipWith (zipper c) word filledInSoFar
+fillInCharacter (Puzzle word filledInSoFar s) c = Puzzle word newFilledInSoFar (c : s) where
+  zipper guessed wordChar guessChar =
+    if wordChar == guessed then Just wordChar
+    else guessChar
+  newFilledInSoFar = zipWith (zipper c) word filledInSoFar
 
 
 -- HANDLE GUESS
@@ -136,7 +119,8 @@ runGame :: Puzzle -> IO ()
 runGame puzzle = forever $ do
   gameOver puzzle
   gameWin puzzle
-  putStrLn $ "Current puzzle is: " ++ show puzzle putStr "Guess a letter: "
+  putStrLn $ "Current puzzle is: " ++ show puzzle
+  putStr "Guess a letter: "
   guess <- getLine
   case guess of
     [c] -> handleGuess puzzle c >>= runGame
