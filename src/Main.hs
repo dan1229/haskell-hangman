@@ -5,9 +5,7 @@ import Data.Char (toLower) -- [2]
 import Data.Maybe (isJust) -- [3]
 import Data.List (intersperse) -- [4]
 import System.Exit (exitSuccess) -- [5]
-import System.IO (BufferMode(NoBuffering),
-hSetBuffering,
-stdout) -- [6]
+import System.IO (BufferMode(NoBuffering), hSetBuffering, stdout) -- [6]
 import System.Random (randomRIO) -- [7]
 
 
@@ -36,9 +34,7 @@ badAll = all
 
 
 -- WORDS LIST
-newtype WordList =
-  WordList [String]
-  deriving (Eq, Show)
+newtype WordList = WordList [String] deriving (Eq, Show)
 
 allWords :: IO WordList
 allWords = do
@@ -50,16 +46,12 @@ gameWords :: IO WordList
 gameWords = do
   (WordList aw) <- allWords
   return $ WordList (filter gameLength aw)
-  where gameLength w = 
-    let l = length (w :: String)
-    in l > minWordLength
-    && l < maxWordLength
+  where gameLength w = let l = length (w :: String) in l > minWordLength && l < maxWordLength
 
 
 randomWord :: WordList -> IO String
 randomWord (WordList wl) = do
-  randomIndex <-
-    randomRIO (0, (length wl) - 1)
+  randomIndex <- randomRIO (0, (length wl) - 1)
   return $ wl !! randomIndex
 
 
@@ -94,35 +86,37 @@ renderPuzzleChar :: Maybe Char -> Char
 renderPuzzleChar = undefined
 
 
--- HANDLE GUESS
+fillInCharacter :: Puzzle -> Char -> Puzzle
+fillInCharacter (Puzzle word filledInSoFar s) c = Puzzle word newFilledInSoFar (c : s)
+  where zipper guessed wordChar guessChar =
+    if wordChar == guessed
+      then Just wordChar
+    else guessChar newFilledInSoFar = zipWith (zipper c) word filledInSoFar
 
+
+-- HANDLE GUESS
 handleGuess :: Puzzle -> Char -> IO Puzzle
 handleGuess puzzle guess = do
   putStrLn $ "Your guess was: " ++ [guess]
   case (charInWord puzzle guess, alreadyGuessed puzzle guess) of
     (_, True) -> do
-    putStrLn "You already guessed that\
-                \ character, pick \
-                \ something else!"
-        return puzzle
+      putStrLn "You already guessed that character, pick something else!"
+      return puzzle
     (True, _) -> do
-    putStrLn "This character was in the\
-                \ word, filling in the word\
-                \ accordingly"
-        return (fillInCharacter puzzle guess)
+      putStrLn "This character was in the word, filling in the word accordingly"
+      return (fillInCharacter puzzle guess)
     (False, _) -> do
-    putStrLn "This character wasn't in\
-                  \ the word, try again."
-        return (fillInCharacter puzzle guess)
+      putStrLn "This character wasn't in the word, try again."
+      return (fillInCharacter puzzle guess)
 
 
 -- GAME OVER
 gameOver :: Puzzle -> IO ()
 gameOver (Puzzle wordToGuess _ guessed) =
   if (length guessed) > 7 then
-    do putStrLn "You lose!"
-      putStrLn $
-        "The word was: " ++ wordToGuess
+    do
+      putStrLn $ "You lose!"
+      putStrLn $ "The word was: " ++ wordToGuess
       exitSuccess
   else return ()
 
@@ -131,7 +125,8 @@ gameOver (Puzzle wordToGuess _ guessed) =
 gameWin :: Puzzle -> IO ()
 gameWin (Puzzle _ filledInSoFar _) =
   if all isJust filledInSoFar then
-    do putStrLn "You win!"
+    do
+      putStrLn $ "You win!"
       exitSuccess
   else return ()
 
@@ -141,8 +136,7 @@ runGame :: Puzzle -> IO ()
 runGame puzzle = forever $ do
   gameOver puzzle
   gameWin puzzle
-  putStrLn $
-    "Current puzzle is: " ++ show puzzle putStr "Guess a letter: "
+  putStrLn $ "Current puzzle is: " ++ show puzzle putStr "Guess a letter: "
   guess <- getLine
   case guess of
     [c] -> handleGuess puzzle c >>= runGame
