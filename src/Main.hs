@@ -8,12 +8,16 @@ import System.Exit (exitSuccess) -- [5]
 import System.IO (BufferMode(NoBuffering), hSetBuffering, stdout) -- [6]
 import System.Random (randomRIO) -- [7]
 
-
+{-
+TODO
+- guesses left should NOT be counted against for valid guesses
+-}
 minWordLength :: Int
 minWordLength = 5
 maxWordLength :: Int
 maxWordLength = 9
-
+maxGuesses:: Int
+maxGuesses = 7
 
 
 -- WORDS LIST
@@ -42,15 +46,16 @@ randomWord' :: IO String
 randomWord' = gameWords >>= randomWord
 
 
--- PUZZLE
+-- PUZZLE - guess, filled in so far, guessed
 data Puzzle = Puzzle String [Maybe Char] [Char]
 
 
 instance Show Puzzle where
-  show (Puzzle _ discovered guessed) =
+  show (Puzzle wordToGuess discovered guessed) =
     (intersperse ' ' $
     fmap renderPuzzleChar discovered)
-    ++ " Guessed so far: " ++ guessed
+    ++ "\nGuessed so far: " ++ guessed
+    ++ "\nGuesses left: " ++ show (guessesLeft wordToGuess guessed)
 
 
 freshPuzzle :: String -> Puzzle
@@ -89,11 +94,21 @@ handleGuess puzzle guess = do
       putStrLn "This character wasn't in the word, try again."
       return (fillInCharacter puzzle guess)
 
+-- TODO account for correct guesses
+guessesLeft :: String -> [Char] -> Int
+guessesLeft wordToGuess guessed = do
+  -- TODO
+  -- use map or something to traverse the word
+  -- for each guess already in the word, subtract
+  -- one from the grouped term below
+  return maxGuesses - (length guessed)
+
+
 
 -- GAME OVER
 gameOver :: Puzzle -> IO ()
 gameOver (Puzzle wordToGuess _ guessed) =
-  if (length guessed) > 7 then
+  if (guessesLeft wordToGuess guessed) < 0 then
     do
       putStrLn $ "You lose!"
       putStrLn $ "The word was: " ++ wordToGuess
