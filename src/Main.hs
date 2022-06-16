@@ -20,7 +20,6 @@ maxGuesses:: Int
 maxGuesses = 7
 
 
-
 -- WORDS LIST
 newtype WordList = WordList [String] deriving (Eq, Show)
 
