@@ -2,7 +2,7 @@ module Main where
 
 import Control.Monad (forever) -- [1]
 import Data.Char (toLower) -- [2]
-import Data.Maybe (isJust) -- [3]
+import Data.Maybe (isJust, fromMaybe) -- [3]
 import Data.List (intersperse) -- [4]
 import System.Exit (exitSuccess) -- [5]
 import System.IO (BufferMode(NoBuffering), hSetBuffering, stdout) -- [6]
@@ -54,19 +54,16 @@ instance Show Puzzle where
 
 
 freshPuzzle :: String -> Puzzle
-freshPuzzle = undefined
-
+freshPuzzle s = Puzzle s (map (const Nothing) s) []
 
 charInWord :: Puzzle -> Char -> Bool
-charInWord = undefined
-
+charInWord (Puzzle word _ _) c = c `elem` word
 
 alreadyGuessed :: Puzzle -> Char -> Bool
-alreadyGuessed = undefined
-
+alreadyGuessed (Puzzle _ _ alreadyGuessed) c = c `elem` alreadyGuessed
 
 renderPuzzleChar :: Maybe Char -> Char
-renderPuzzleChar = undefined
+renderPuzzleChar = fromMaybe '_'
 
 
 fillInCharacter :: Puzzle -> Char -> Puzzle
