@@ -20,6 +20,7 @@ maxGuesses:: Int
 maxGuesses = 7
 
 
+
 -- WORDS LIST
 newtype WordList = WordList [String] deriving (Eq, Show)
 
@@ -101,7 +102,7 @@ guessesLeft wordToGuess guessed = do
   -- use map or something to traverse the word
   -- for each guess already in the word, subtract
   -- one from the grouped term below
-  return maxGuesses - (length guessed)
+  maxGuesses - (length guessed)
 
 
 
